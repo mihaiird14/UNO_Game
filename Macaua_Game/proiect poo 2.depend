@@ -1,0 +1,45 @@
+# depslib dependency file v1.0
+1712594775 source:c:\users\mihai\onedrive\desktop\cpp\proiect poo 2\main.cpp
+	<iostream>
+	<string>
+	<thread>
+	<chrono>
+	<stdlib.h>
+	<vector>
+	"jucator.h"
+	"carti.h"
+
+1712593194 c:\users\mihai\onedrive\desktop\cpp\proiect poo 2\jucator.h
+	<string>
+	<fstream>
+	<cstdlib>
+
+1712594889 c:\users\mihai\onedrive\desktop\cpp\proiect poo 2\carti.h
+	<string>
+	<memory>
+	<vector>
+	<cstdlib>
+	<ctime>
+
+1712601552 source:c:\users\mihai\desktop\infoex\macaua_game\main.cpp
+	<iostream>
+	<string>
+	<thread>
+	<chrono>
+	<stdlib.h>
+	<vector>
+	"jucator.h"
+	"carti.h"
+
+1712600301 c:\users\mihai\desktop\infoex\macaua_game\jucator.h
+	<string>
+	<fstream>
+	<cstdlib>
+
+1712601959 c:\users\mihai\desktop\infoex\macaua_game\carti.h
+	<string>
+	<memory>
+	<vector>
+	<cstdlib>
+	<ctime>
+
