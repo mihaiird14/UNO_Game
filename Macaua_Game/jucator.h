@@ -4,15 +4,16 @@
 using namespace std;
 class Jucator{
     protected:
+        int staOTura;
+        static int nrUnflaturi;
         string nickname;
         int rundeCastigate;
-        int nrInflaturi;
         vector<pair<int,int>>CartiJucator;
     public:
         Jucator(string nume){
             nickname=nume;
             rundeCastigate=0;
-            nrInflaturi=0;
+            staOTura=0;
         }
         string getNume(){
             return nickname;
@@ -26,19 +27,36 @@ class Jucator{
         pair<int,int> getCarti(int x){
             return CartiJucator[x];
         }
-
+        int getNrCarti(){
+            return CartiJucator.size();
+        }
+        int getStaOTura(){
+            return staOTura;
+        }
+        void decStaOTura(){
+            staOTura--;
+        }
+        void stergeCarte(pair<int,int> x){
+            for(int i=0;i<CartiJucator.size();i++)
+                if(x==CartiJucator[i])
+                {
+                    CartiJucator.erase(CartiJucator.begin()+i);
+                    return;
+                }
+        }
 };
+int Jucator::nrUnflaturi=0;
 class HumanPlayer:public Jucator{
-    int highScore;
+    int numarJocuriCastigate;
     public:
         HumanPlayer(string nume,int id):Jucator(nume){
             ifstream fin("highscore.txt");
             for(int i=1;i<=id;i++)
-                fin>>highScore;
+                fin>>numarJocuriCastigate;
             fin.close();
         }
-        int getHighScore(){
-            return highScore;
+        int getNumarJocuriCastigate(){
+            return numarJocuriCastigate;
         }
 };
 int RandomPlayer(int id){
@@ -47,7 +65,7 @@ int RandomPlayer(int id){
 }
 int NextPlayer(int id,int n){
     id++;
-    if(id==n)
+    if(id==n+1)
         return 1;
     return id;
 }
