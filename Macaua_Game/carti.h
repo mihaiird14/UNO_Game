@@ -1,19 +1,20 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <fstream>
 using namespace std;
 class Carti{
-    string culoare;
-    string semn;
+    int culoare;
+    int semn;
     public:
-        Carti(string c,string s){
+        Carti(int c,int s){
             culoare=c;
             semn=s;
         }
-        string getCuloare(){
+        int getCuloare(){
             return culoare;
         }
-        string getSemn(){
+        int getSemn(){
             return semn;
         }
 
@@ -24,7 +25,7 @@ class CarteValoare:public Carti{
         int getValoare(){
             return valoare;
         }
-        CarteValoare(string c,string s,int v):Carti(c,s){
+        CarteValoare(int c,int s,int v):Carti(c,s){
             valoare=v;
         }
 
@@ -41,14 +42,83 @@ class CarteActiune:public Carti{
                 return "SCHIMBA CULOAREA";
             return "STAI O TURA";
         }
-        CarteActiune(string c,string s,int a):Carti(c,s){
+        CarteActiune(int c,int s,int a):Carti(c,s){
             actiune=a;
         }
 };
-void GenerareCarti(vector<pair<int,int>>&v){
+class Jucator{
+    protected:
+        int staOTura;
+        static int nrUnflaturi;
+        string nickname;
+        int rundeCastigate;
+        vector<shared_ptr<Carti>>CartiJucator;
+    public:
+        Jucator(string nume){
+            nickname=nume;
+            rundeCastigate=0;
+            staOTura=0;
+        }
+        string getNume(){
+            return nickname;
+        }
+        int getRundeCastigate(){
+            return rundeCastigate;
+        }
+        void addCarte(shared_ptr<Carti> c){
+            CartiJucator.push_back(c);
+        }
+        shared_ptr<Carti> getCarti(int x){
+            return CartiJucator[x];
+        }
+        int getNrCarti(){
+            return CartiJucator.size();
+        }
+        int getStaOTura(){
+            return staOTura;
+        }
+        void decStaOTura(){
+            staOTura--;
+        }
+        void stergeCarte(shared_ptr<Carti> x){
+            for(int i=0;i<CartiJucator.size();i++)
+                if(x==CartiJucator[i])
+                {
+                    CartiJucator.erase(CartiJucator.begin()+i);
+                    return;
+                }
+        }
+};
+int Jucator::nrUnflaturi=0;
+class HumanPlayer:public Jucator{
+    int numarJocuriCastigate;
+    public:
+        HumanPlayer(string nume):Jucator(nume){
+            ifstream fin("highscore.txt");
+            fin.close();
+        }
+        int getNumarJocuriCastigate(){
+            return numarJocuriCastigate;
+        }
+};
+int RandomPlayer(int id){
+    srand((unsigned) time(NULL));
+    return rand()%id+1;
+}
+int NextPlayer(int id,int n){
+    id++;
+    if(id==n+1)
+        return 1;
+    return id;
+}
+
+void GenerareCarti(vector<shared_ptr<Carti>>&v){
     for(int i=1;i<=4;i++)
         for(int j=1;j<=13;j++)
-            v.push_back(make_pair(i,j));
+        {
+            Carti nou(i,j);
+            v.push_back(make_shared<Carti>(nou));
+        }
     /*
         pentru i: 1=inima rosie, 2=inima neagra, 3=caro,4=trefla
         pentru j: 2-10 numare, 1=as, 11=J,12=Q,13=K
@@ -62,30 +132,30 @@ void GenerareCarti(vector<pair<int,int>>&v){
         swap(v[a1],v[a2]);
     }
 }
-void desen(int culoare,int semn,vector<string>&f,vector<string>&n,vector<pair<int,int>>&fo,vector<pair<int,int>>&ne,pair<int,int>deVerificat){
+void desen(shared_ptr<Carti>x,vector<string>&f,vector<string>&n,vector<shared_ptr<Carti>>&fo,vector<shared_ptr<Carti>>&ne,shared_ptr<Carti>deVerificat){
     string c,s;
-    if(culoare==1)
+    if(x->getCuloare()==1)
         c="INIMA RO";
-    else if(culoare==2)
+    else if(x->getCuloare()==2)
         c="INIMA NE";
-    else if(culoare==3)
+    else if(x->getCuloare()==3)
         c="..CARO..";
     else
         c=".TREFLA.";
-    if(semn==1)
+    if(x->getSemn()==1)
         s="AS";
-    else if(semn>=2 && semn<=9)
-        s=to_string(semn)+".";
-    else if(semn==10)
+    else if(x->getSemn()>=2 && x->getSemn()<=9)
+        s=to_string(x->getSemn())+".";
+    else if(x->getSemn()==10)
         s="10";
-    else if(semn==11)
+    else if(x->getSemn()==11)
         s="J.";
-    else if(semn==12)
+    else if(x->getSemn()==12)
         s="Q.";
     else
         s="K.";
-    if(culoare==deVerificat.first || semn==deVerificat.second){
-        fo.push_back(make_pair(culoare,semn));
+    if(x->getCuloare()==deVerificat->getCuloare() || x->getSemn()==deVerificat->getSemn()){
+        fo.push_back(x);
         f.push_back("..........");
         f.push_back("..........");
         f.push_back("...."+s+"....");
@@ -94,7 +164,7 @@ void desen(int culoare,int semn,vector<string>&f,vector<string>&n,vector<pair<in
         f.push_back("..........");
     }
     else{
-        ne.push_back(make_pair(culoare,semn));
+        ne.push_back(x);
         n.push_back("..........");
         n.push_back("..........");
         n.push_back("...."+s+"....");
@@ -103,25 +173,25 @@ void desen(int culoare,int semn,vector<string>&f,vector<string>&n,vector<pair<in
         n.push_back("..........");
     }
 }
-void desen(int culoare,int semn,vector<string>&v){
-        string c,s;
-    if(culoare==1)
+void desen(shared_ptr<Carti>x,vector<string>&v){
+    string c,s;
+    if(x->getCuloare()==1)
         c="INIMA RO";
-    else if(culoare==2)
+    else if(x->getCuloare()==2)
         c="INIMA NE";
-    else if(culoare==3)
+    else if(x->getCuloare()==3)
         c="..CARO..";
     else
         c=".TREFLA.";
-    if(semn==1)
+    if(x->getSemn()==1)
         s="AS";
-    else if(semn>=2 && semn<=9)
-        s=to_string(semn)+".";
-    else if(semn==10)
+    else if(x->getSemn()>=2 && x->getSemn()<=9)
+        s=to_string(x->getSemn())+".";
+    else if(x->getSemn()==10)
         s="10";
-    else if(semn==11)
+    else if(x->getSemn()==11)
         s="J.";
-    else if(semn==12)
+    else if(x->getSemn()==12)
         s="Q.";
     else
         s="K.";
@@ -132,12 +202,12 @@ void desen(int culoare,int semn,vector<string>&v){
     v.push_back("..........");
     v.push_back("..........");
 }
-pair<int,int> alegeCarteStart(vector<pair<int,int>> &ListaCarti){
+shared_ptr<Carti> alegeCarteStart(vector<shared_ptr<Carti>> &ListaCarti){
     srand(time(nullptr));
     int poz=rand()%(ListaCarti.size());
-    while(ListaCarti[poz].second==1 || ListaCarti[poz].second==2 || ListaCarti[poz].second==3 || ListaCarti[poz].second==4)
+    while(ListaCarti[poz]->getSemn()==1 || ListaCarti[poz]->getSemn()==2 || ListaCarti[poz]->getSemn()==3 || ListaCarti[poz]->getSemn()==4)
         poz=rand()%(ListaCarti.size());
-    pair<int,int>x=ListaCarti[poz];
+    shared_ptr<Carti> x=ListaCarti[poz];
     ListaCarti.erase(ListaCarti.begin()+poz);
     return x;
 }
