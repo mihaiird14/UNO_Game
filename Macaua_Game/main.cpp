@@ -28,6 +28,11 @@ void verificaCartiRamase(){
         shared_ptr<Carti>VarfStiva=stiva.top();
         stiva.pop();
         while(!stiva.empty()){
+            if(stiva.top()->getSemn()>1 && stiva.top()->getSemn()<4)
+            {
+                stiva.top()=dynamic_pointer_cast<CarteValoare>(stiva.top());
+                stiva.top()->setValabilitate(true);
+            }
             ListaCarti.push_back(stiva.top());
             stiva.pop();
         }
@@ -123,8 +128,11 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
             rand=NextPlayer(rand,(int)L.size());
             StartJocLocal(L,rand);
         }
+        else if(esteStaiOTura(stiva.top())){
+
+        }
         else{
-            L[rand-1]->resetUnflaturi();
+            L[rand-1]->addUnflaturi();
             cout<<"----------CARTILE TALE SUNT------------"<<endl<<endl;
             for(int i=0;i<L[rand-1]->getNrCarti();i++)
             {
