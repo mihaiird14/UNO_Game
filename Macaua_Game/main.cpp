@@ -6,19 +6,18 @@
 #include <vector>
 #include <stack>
 #include <memory>
-#include "jucator.h"
 #include "carti.h"
 #define VERDE   "\033[32m"
 #define ROSU   "\033[31m"
 #define ALB   "\033[0m"
 using namespace std;
-stack<pair<int,int>>stiva;
-vector<pair<int,int>>ListaCarti;
-void AdaugaCarti(int nr,HumanPlayer &N){
+vector<shared_ptr<Carti>>ListaCarti;
+stack<shared_ptr<Carti>>stiva;
+void AdaugaCarti(int nr,shared_ptr<HumanPlayer>&N){
     srand(time(nullptr));
     for(int i=1;i<=nr;i++){
         int x=rand()%(ListaCarti.size());
-        N.addCarte(ListaCarti[x]);
+        N->addCarte(ListaCarti[x]);
         ListaCarti.erase(ListaCarti.begin()+x);
     }
 }
@@ -26,7 +25,7 @@ void verificaCartiRamase(){
     if(ListaCarti.size()!=0)
         return;
     else{
-        pair<int,int>VarfStiva=stiva.top();
+        shared_ptr<Carti>VarfStiva=stiva.top();
         stiva.pop();
         while(!stiva.empty()){
             ListaCarti.push_back(stiva.top());
@@ -36,37 +35,41 @@ void verificaCartiRamase(){
         stiva.push(VarfStiva);
     }
 }
-void StartJocLocal(vector<HumanPlayer*>L,int rand){
+void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
     if(L[rand-1]->getStaOTura()==0){
         cout<<"Este Randul lui "<<L[rand-1]->getNume()<<endl<<endl;
         cout<<"----------ULTIMA CARTE JUCATA----------"<<endl<<endl;
         vector<string>s;
-        desen(stiva.top().first,stiva.top().second,s);
+        desen(stiva.top(),s);
         for(int i=0;i<6;i++)
             cout<<s[i]<<endl;
         s.clear();
         cout<<endl;
         cout<<"----------CARTILE TALE SUNT------------"<<endl<<endl;
         vector<string>folositoare,nefolositoare;
-        vector<pair<int,int>>f,n;
+        vector<shared_ptr<Carti>>f,n;
         for(int i=0;i<L[rand-1]->getNrCarti();i++)
         {
-            pair<int,int>x=L[rand-1]->getCarti(i);
-            desen(x.first,x.second,folositoare,nefolositoare,f,n,stiva.top());
+            shared_ptr<Carti>x=L[rand-1]->getCarti(i);
+            desen(x,folositoare,nefolositoare,f,n,stiva.top());
         }
         this_thread::sleep_for(chrono::seconds(1));
-        for(int i=0;i<6;i++)
-        {
-            for(int j=i;j<folositoare.size();j+=6)
-                cout<<VERDE<<folositoare[j]<<ALB<<"\t";
+        if(f.size()){
+            for(int i=0;i<6;i++)
+            {
+                for(int j=i;j<folositoare.size();j+=6)
+                    cout<<VERDE<<folositoare[j]<<ALB<<"\t";
+                cout<<endl;
+            }
             cout<<endl;
         }
-        cout<<endl;
-        for(int i=0;i<6;i++)
-        {
-            for(int j=i;j<nefolositoare.size();j+=6)
-                cout<<nefolositoare[j]<<"\t";
-            cout<<endl;
+        if(n.size()){
+            for(int i=0;i<6;i++)
+            {
+                for(int j=i;j<nefolositoare.size();j+=6)
+                    cout<<nefolositoare[j]<<"\t";
+                cout<<endl;
+            }
         }
         cout<<endl<<"-------ACTIUNI POSIBILE-----------"<<endl;
         int i=0;
@@ -80,21 +83,21 @@ void StartJocLocal(vector<HumanPlayer*>L,int rand){
             cin>>actiune;
         }
         if(actiune==i+1){
-            AdaugaCarti(1,*L[rand-1]);
+            AdaugaCarti(1,L[rand-1]);
             verificaCartiRamase();
             cout<<endl;
             cout<<"-------CARTEA EXTRASA ESTE-------------"<<endl<<endl;
-            desen(L[rand-1]->getCarti(L[rand-1]->getNrCarti()-1).first,L[rand-1]->getCarti(L[rand-1]->getNrCarti()-1).second,s);
+            desen(L[rand-1]->getCarti(L[rand-1]->getNrCarti()-1),s);
             for(int j=0;j<6;j++)
                 cout<<s[j]<<endl;
             cout<<endl;
         }
         else{
-            stiva.push(f[i-1]);
-            L[rand-1]->stergeCarte(f[i-1]);
+            stiva.push(f[actiune-1]);
+            L[rand-1]->stergeCarte(f[actiune-1]);
         }
         cout<<"-----URMATORUL JUCATOR IN 2 SECUNDE---------"<<endl;
-        this_thread::sleep_for(chrono::seconds(2));
+        this_thread::sleep_for(chrono::seconds(4));
         system("CLS");
         rand=NextPlayer(rand,(int)L.size());
         StartJocLocal(L,rand);
@@ -129,16 +132,16 @@ void tipJoc()
         int Rand=RandomPlayer(nrJucatori);
         GenerareCarti(ListaCarti);
         string numePlayer;
-        vector<HumanPlayer*>ListaJucatori;
+        vector<shared_ptr<HumanPlayer>>ListaJucatori;
         for(int i=1;i<=nrJucatori;i++)
         {
             cout<<"Nickname Player "<<i<<": ";
             cin>>numePlayer;
-            HumanPlayer *Player=new HumanPlayer(numePlayer,i);
-            ListaJucatori.push_back(Player);
-            AdaugaCarti(5,*Player);
+            HumanPlayer Player(numePlayer);
+            ListaJucatori.push_back(make_shared<HumanPlayer>(Player));
+            AdaugaCarti(5,ListaJucatori[ListaJucatori.size()-1]);
         }
-        pair<int,int> CarteStart = alegeCarteStart(ListaCarti);
+        shared_ptr<Carti> CarteStart = alegeCarteStart(ListaCarti);
         stiva.push(CarteStart);
         cout<<"---------JOCUL VA INCEPE IN 2 SECUNDE-------------"<<endl;
         this_thread::sleep_for(chrono::seconds(2));
