@@ -128,7 +128,7 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
                 L[rand-1]->stergeCarte(f[actiune-1]);
             }
             cout<<"-----URMATORUL JUCATOR IN 2 SECUNDE---------"<<endl;
-            this_thread::sleep_for(chrono::seconds(4));
+            this_thread::sleep_for(chrono::seconds(2));
             system("CLS");
             rand=NextPlayer(rand,(int)L.size());
             StartJocLocal(L,rand);
@@ -146,7 +146,7 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
 }
 void tipJoc()
 {
-    cout<<"         -----------------MACAUA-----------------"<<endl;
+    cout<<"         -----------------UNO-----------------"<<endl;
     cout<<"Alege Modul de joc: \n";
     cout<<"1. Local\n";
     cout<<"2. Player Vs. Calculator\n";
