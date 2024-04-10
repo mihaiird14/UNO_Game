@@ -7,6 +7,7 @@ class Carti{
     int culoare;
     int semn;
     public:
+
         Carti(int c,int s){
             culoare=c;
             semn=s;
@@ -17,15 +18,18 @@ class Carti{
         int getSemn(){
             return semn;
         }
-        virtual void Extrage() {}
         virtual int getValoare(){}
         virtual void setValoare(int x){}
+        virtual bool getValabilitate(){}
+        virtual void setValabilitate(bool x){}
 };
 class CarteValoare:public Carti{
     int valoare;
+    bool valabila;
     public:
         CarteValoare(int c,int s):Carti(c,s){
             valoare=0;
+            valabila=true;
         }
         int getValoare(){
             return valoare;
@@ -33,7 +37,11 @@ class CarteValoare:public Carti{
         void setValoare(int x){
             valoare=x;
         }
-        void Extrage(){
+        bool getValabilitate(){
+            return valabila;
+        }
+        void setValabilitate(bool x){
+            valabila=x;
         }
 };
 class CarteActiune:public Carti{
@@ -99,6 +107,9 @@ class Jucator{
         }
         void addUnflaturi(int x){
             nrUnflaturi+=x;
+        }
+        void resetUnflaturi(){
+            nrUnflaturi=0;
         }
 };
 int Jucator::nrUnflaturi=0;
@@ -264,9 +275,17 @@ shared_ptr<Carti> alegeCarteStart(vector<shared_ptr<Carti>> &ListaCarti){
     ListaCarti.erase(ListaCarti.begin()+poz);
     return x;
 }
-bool esteUnflatura(shared_ptr<Carti>x){
-    if(x->getSemn()==2 || x->getSemn()==3)
-        return true;
+bool esteUnflatura(shared_ptr<Carti>x,shared_ptr<HumanPlayer>L){
+    if((x->getSemn()==2 || x->getSemn()==3))
+    {
+        if(L->getUnflaturi()==0){
+            x->setValabilitate(true);
+            return true;
+        }
+        else{
+            return x->getValabilitate();
+        }
+    }
     return false;
 }
 
