@@ -47,7 +47,7 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
         cout<<endl;
         vector<string>folositoare,nefolositoare;
         vector<shared_ptr<Carti>>f,n;
-        if(esteUnflatura(stiva.top())){
+        if(esteUnflatura(stiva.top(),L[rand-1])){
             CarteValoare y(stiva.top()->getCuloare(),stiva.top()->getSemn());
             shared_ptr<CarteValoare>x =make_shared<CarteValoare>(y);
             stiva.top()=dynamic_pointer_cast<CarteValoare>(x);
@@ -93,17 +93,38 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
                 if(L[rand-1]->getUnflaturi()>=ListaCarti.size()){
                     AdaugaCarti(L[rand-1]->getUnflaturi(),L[rand-1]);
                     verificaCartiRamase();
-                    ///L[rand-1]->setUnflaturi(0);
+                    stiva.top()->setValabilitate(false);
+                    ///L[rand-1]->resetUnflaturi();
                 }
                 else{
-                    ///while()
-                    AdaugaCarti(ListaCarti.size(),L[rand-1]);
                     verificaCartiRamase();
+                    if(ListaCarti.size()>=L[rand-1]->getUnflaturi())
+                    {
+                        AdaugaCarti(L[rand-1]->getUnflaturi(),L[rand-1]);
+                        stiva.top()->setValabilitate(false);
+                        ///L[rand-1]->resetUnflaturi();
+                    }
+                    else{
+                        cout<<"Nu sunt suficiente carti, asa ca numarul de carti extrase a fost redus la "<<ListaCarti.size()<<endl;
+                        AdaugaCarti(ListaCarti.size(),L[rand-1]);
+                        stiva.top()->setValabilitate(false);
+                        ///L[rand-1]->resetUnflaturi();
 
+                    }
                 }
             }
+            else{
+                stiva.push(f[actiune-1]);
+                L[rand-1]->stergeCarte(f[actiune-1]);
+            }
+            cout<<"-----URMATORUL JUCATOR IN 2 SECUNDE---------"<<endl;
+            this_thread::sleep_for(chrono::seconds(2));
+            system("CLS");
+            rand=NextPlayer(rand,(int)L.size());
+            StartJocLocal(L,rand);
         }
         else{
+            L[rand-1]->resetUnflaturi();
             cout<<"----------CARTILE TALE SUNT------------"<<endl<<endl;
             for(int i=0;i<L[rand-1]->getNrCarti();i++)
             {
