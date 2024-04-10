@@ -76,6 +76,21 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
                     cout<<endl;
                 }
             }
+            cout<<endl<<"-------ACTIUNI POSIBILE-----------"<<endl;
+            int i=0;
+            for(;i<folositoare.size()/6;i++)
+                cout<<i+1<<": Joaca cartea de pe pozitia "<<i+1<<endl;
+            cout<<ROSU<<i+1<<" :Trage "<<L[rand-1]->getUnflaturi()<<" carti"<<ALB<<endl;
+            int actiune=0;
+            while(actiune<1 || actiune>i+1)
+            {
+                cout<<"ALEGE ACTIUNE: ";
+                cin>>actiune;
+            }
+            if(actiune==i+1){
+                ///de inplementat, verifica daca sunt suficiente carti.
+                ///in caz contrar, refill
+            }
         }
         else{
             cout<<"----------CARTILE TALE SUNT------------"<<endl<<endl;
@@ -114,6 +129,7 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
                 cin>>actiune;
             }
             if(actiune==i+1){
+                ///de implementat, verifica daca sunt sufieciente carti ramase
                 AdaugaCarti(1,L[rand-1]);
                 verificaCartiRamase();
                 cout<<endl;
