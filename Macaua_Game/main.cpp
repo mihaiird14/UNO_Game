@@ -90,6 +90,17 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
             if(actiune==i+1){
                 ///de inplementat, verifica daca sunt suficiente carti.
                 ///in caz contrar, refill
+                if(L[rand-1]->getUnflaturi()>=ListaCarti.size()){
+                    AdaugaCarti(L[rand-1]->getUnflaturi(),L[rand-1]);
+                    verificaCartiRamase();
+                    ///L[rand-1]->setUnflaturi(0);
+                }
+                else{
+                    ///while()
+                    AdaugaCarti(ListaCarti.size(),L[rand-1]);
+                    verificaCartiRamase();
+
+                }
             }
         }
         else{
@@ -129,9 +140,14 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
                 cin>>actiune;
             }
             if(actiune==i+1){
+                if(ListaCarti.size()>=1){
                 ///de implementat, verifica daca sunt sufieciente carti ramase
-                AdaugaCarti(1,L[rand-1]);
-                verificaCartiRamase();
+                    AdaugaCarti(1,L[rand-1]);
+                    verificaCartiRamase();
+                }
+                else{
+                    cout<<"Nu mai sunt carti disponibile!!!"<<endl;
+                }
                 cout<<endl;
                 cout<<"-------CARTEA EXTRASA ESTE-------------"<<endl<<endl;
                 desen(L[rand-1]->getCarti(L[rand-1]->getNrCarti()-1),s);
