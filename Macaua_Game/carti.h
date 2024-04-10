@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <iostream>
 #include <cstdlib>
 #include <fstream>
 using namespace std;
@@ -22,6 +23,9 @@ class Carti{
         virtual void setValoare(int x){}
         virtual bool getValabilitate(){}
         virtual void setValabilitate(bool x){}
+//        virtual void afis(){
+//            cout<<"clasa de baza";
+//        }
 };
 class CarteValoare:public Carti{
     int valoare;
@@ -31,31 +35,30 @@ class CarteValoare:public Carti{
             valoare=0;
             valabila=true;
         }
-        int getValoare(){
+        int getValoare() override{
             return valoare;
         }
-        void setValoare(int x){
+        void setValoare (int x) override{
             valoare=x;
         }
-        bool getValabilitate(){
+        bool getValabilitate() override{
             return valabila;
         }
-        void setValabilitate(bool x){
+        void setValabilitate(bool x) override{
             valabila=x;
         }
+//        void afis(){
+//            cout<<"clasa derivata";
+//        }
 };
 class CarteActiune:public Carti{
     int actiune;
+    bool valabila;
     /*
         1. Schimba Culoarea
         2. Stai o tura
     */
     public:
-        string getActiune(int x){
-            if(x==1)
-                return "SCHIMBA CULOAREA";
-            return "STAI O TURA";
-        }
         CarteActiune(int c,int s,int a):Carti(c,s){
             actiune=a;
         }
@@ -108,7 +111,7 @@ class Jucator{
         void addUnflaturi(int x){
             nrUnflaturi+=x;
         }
-        void resetUnflaturi(){
+        void addUnflaturi(){
             nrUnflaturi=0;
         }
 };
@@ -278,14 +281,10 @@ shared_ptr<Carti> alegeCarteStart(vector<shared_ptr<Carti>> &ListaCarti){
 bool esteUnflatura(shared_ptr<Carti>x,shared_ptr<HumanPlayer>L){
     if((x->getSemn()==2 || x->getSemn()==3))
     {
-        if(L->getUnflaturi()==0){
-            x->setValabilitate(true);
-            return true;
-        }
-        else{
             return x->getValabilitate();
-        }
     }
     return false;
 }
-
+bool esteStaiOTura(shared_ptr<Carti>x){
+    return x->getSemn()==4;
+}
