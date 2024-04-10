@@ -17,18 +17,24 @@ class Carti{
         int getSemn(){
             return semn;
         }
-
+        virtual void Extrage() {}
+        virtual int getValoare(){}
+        virtual void setValoare(int x){}
 };
 class CarteValoare:public Carti{
     int valoare;
     public:
+        CarteValoare(int c,int s):Carti(c,s){
+            valoare=0;
+        }
         int getValoare(){
             return valoare;
         }
-        CarteValoare(int c,int s,int v):Carti(c,s){
-            valoare=v;
+        void setValoare(int x){
+            valoare=x;
         }
-
+        void Extrage(){
+        }
 };
 class CarteActiune:public Carti{
     int actiune;
@@ -87,6 +93,12 @@ class Jucator{
                     CartiJucator.erase(CartiJucator.begin()+i);
                     return;
                 }
+        }
+        int getUnflaturi(){
+            return nrUnflaturi;
+        }
+        void addUnflaturi(int x){
+            nrUnflaturi+=x;
         }
 };
 int Jucator::nrUnflaturi=0;
@@ -173,6 +185,47 @@ void desen(shared_ptr<Carti>x,vector<string>&f,vector<string>&n,vector<shared_pt
         n.push_back("..........");
     }
 }
+void desenUnflaturi(shared_ptr<Carti>x,vector<string>&f,vector<string>&n,vector<shared_ptr<Carti>>&fo,vector<shared_ptr<Carti>>&ne,shared_ptr<Carti>deVerificat){
+    string c,s;
+    if(x->getCuloare()==1)
+        c="INIMA RO";
+    else if(x->getCuloare()==2)
+        c="INIMA NE";
+    else if(x->getCuloare()==3)
+        c="..CARO..";
+    else
+        c=".TREFLA.";
+    if(x->getSemn()==1)
+        s="AS";
+    else if(x->getSemn()>=2 && x->getSemn()<=9)
+        s=to_string(x->getSemn())+".";
+    else if(x->getSemn()==10)
+        s="10";
+    else if(x->getSemn()==11)
+        s="J.";
+    else if(x->getSemn()==12)
+        s="Q.";
+    else
+        s="K.";
+    if(x->getSemn()==deVerificat->getSemn() || (x->getCuloare()==deVerificat->getCuloare() && (x->getSemn()==2 || x->getSemn()==3))){
+        fo.push_back(x);
+        f.push_back("..........");
+        f.push_back("..........");
+        f.push_back("...."+s+"....");
+        f.push_back("."+c+".");
+        f.push_back("..........");
+        f.push_back("..........");
+    }
+    else{
+        ne.push_back(x);
+        n.push_back("..........");
+        n.push_back("..........");
+        n.push_back("...."+s+"....");
+        n.push_back("."+c+".");
+        n.push_back("..........");
+        n.push_back("..........");
+    }
+}
 void desen(shared_ptr<Carti>x,vector<string>&v){
     string c,s;
     if(x->getCuloare()==1)
@@ -210,5 +263,10 @@ shared_ptr<Carti> alegeCarteStart(vector<shared_ptr<Carti>> &ListaCarti){
     shared_ptr<Carti> x=ListaCarti[poz];
     ListaCarti.erase(ListaCarti.begin()+poz);
     return x;
+}
+bool esteUnflatura(shared_ptr<Carti>x){
+    if(x->getSemn()==2 || x->getSemn()==3)
+        return true;
+    return false;
 }
 
