@@ -33,6 +33,10 @@ void verificaCartiRamase(){
                 stiva.top()=dynamic_pointer_cast<CarteValoare>(stiva.top());
                 stiva.top()->setValabilitate(true);
             }
+            else if(stiva.top()->getSemn()==4){
+                stiva.top()=dynamic_pointer_cast<CarteActiune>(stiva.top());
+                stiva.top()->setValabilitate(true);
+            }
             ListaCarti.push_back(stiva.top());
             stiva.pop();
         }
@@ -129,7 +133,58 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
             StartJocLocal(L,rand);
         }
         else if(esteStaiOTura(stiva.top())){
-
+                CarteActiune x(stiva.top()->getCuloare(),stiva.top()->getSemn(),1);
+                shared_ptr<CarteActiune>y=make_shared<CarteActiune>(x);
+                stiva.top()=dynamic_pointer_cast<CarteActiune>(y);
+                cout<<"----------CARTILE TALE SUNT------------"<<endl<<endl;
+                for(int i=0;i<L[rand-1]->getNrCarti();i++){
+                    shared_ptr<Carti>x=L[rand-1]->getCarti(i);
+                    desenTura(x,folositoare,nefolositoare,f,n,stiva.top());
+                }
+                this_thread::sleep_for(chrono::seconds(1));
+                if(f.size()){
+                for(int i=0;i<6;i++)
+                {
+                    for(int j=i;j<folositoare.size();j+=6)
+                        cout<<VERDE<<folositoare[j]<<ALB<<"\t";
+                    cout<<endl;
+                }
+                cout<<endl;
+            }
+            if(n.size()){
+                for(int i=0;i<6;i++)
+                {
+                    for(int j=i;j<nefolositoare.size();j+=6)
+                        cout<<nefolositoare[j]<<"\t";
+                    cout<<endl;
+                }
+            }
+            cout<<endl<<"-------ACTIUNI POSIBILE-----------"<<endl;
+            int i=0;
+            for(;i<folositoare.size()/6;i++)
+                cout<<i+1<<": Joaca cartea de pe pozitia "<<i+1<<endl;
+            cout<<ROSU<<i+1<<": Stai "<<L[rand-1]->getCalculStaOTura()+1<<" ture"<<ALB<<endl;
+            int actiune=0;
+            while(actiune<1 || actiune>i+1)
+            {
+                cout<<"ALEGE ACTIUNE: ";
+                cin>>actiune;
+            }
+            if(actiune==i+1){
+                L[rand-1]->addStaOTura(L[rand-1]->getCalculStaOTura());
+                L[rand-1]->incCalculStaOTura(-L[rand-1]->getCalculStaOTura());
+                stiva.top()->setValabilitate(false);
+            }
+            else{
+                stiva.push(f[actiune-1]);
+                L[rand-1]->stergeCarte(f[actiune-1]);
+                L[rand-1]->incCalculStaOTura();
+            }
+            cout<<"-----URMATORUL JUCATOR IN 2 SECUNDE---------"<<endl;
+            this_thread::sleep_for(chrono::seconds(2));
+            system("CLS");
+            rand=NextPlayer(rand,(int)L.size());
+            StartJocLocal(L,rand);
         }
         else{
             L[rand-1]->addUnflaturi();
