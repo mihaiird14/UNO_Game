@@ -392,7 +392,7 @@ shared_ptr<Carti> alegeCarteStart(vector<shared_ptr<Carti>> &ListaCarti){
     ListaCarti.erase(ListaCarti.begin()+poz);
     return x;
 }
-bool esteUnflatura(shared_ptr<Carti>x,shared_ptr<HumanPlayer>L){
+bool esteUnflatura(shared_ptr<Carti>x){
     if((x->getSemn()==2 || x->getSemn()==3))
     {
             return x->getValabilitate();
@@ -401,4 +401,9 @@ bool esteUnflatura(shared_ptr<Carti>x,shared_ptr<HumanPlayer>L){
 }
 bool esteActiune(shared_ptr<Carti>x,int a){
     return x->getSemn()==a && x->getValabilitate()==true;
+}
+int RandomActiune(int x){
+    srand(time(nullptr));
+    int a=rand()%x;
+    return a+1;
 }
