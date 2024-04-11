@@ -21,29 +21,6 @@ void AdaugaCarti(int nr,shared_ptr<HumanPlayer>&N){
         ListaCarti.erase(ListaCarti.begin()+x);
     }
 }
-void verificaCartiRamase(){
-    if(ListaCarti.size()!=0)
-        return;
-    else{
-        shared_ptr<Carti>VarfStiva=stiva.top();
-        stiva.pop();
-        while(!stiva.empty()){
-            if(stiva.top()->getSemn()>1 && stiva.top()->getSemn()<4)
-            {
-                stiva.top()=dynamic_pointer_cast<CarteValoare>(stiva.top());
-                stiva.top()->setValabilitate(true);
-            }
-            else if(stiva.top()->getSemn()==4){
-                stiva.top()=dynamic_pointer_cast<CarteActiune>(stiva.top());
-                stiva.top()->setValabilitate(true);
-            }
-            ListaCarti.push_back(stiva.top());
-            stiva.pop();
-        }
-        GenerareCarti(ListaCarti);
-        stiva.push(VarfStiva);
-    }
-}
 void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
     if(L[rand-1]->getStaOTura()==0){
         cout<<"Este Randul lui "<<L[rand-1]->getNume()<<endl<<endl;
@@ -98,29 +75,17 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
             }
             if(actiune==i+1){
                 ///de inplementat, verifica daca sunt suficiente carti.
-                ///in caz contrar, refill
-                if(L[rand-1]->getUnflaturi()>=ListaCarti.size()){
+                if(L[rand-1]->getUnflaturi()<=ListaCarti.size()){
                     AdaugaCarti(L[rand-1]->getUnflaturi(),L[rand-1]);
-                    verificaCartiRamase();
                     stiva.top()->setValabilitate(false);
                     ///L[rand-1]->resetUnflaturi();
                 }
                 else{
-                    verificaCartiRamase();
-                    if(ListaCarti.size()>=L[rand-1]->getUnflaturi())
-                    {
-                        AdaugaCarti(L[rand-1]->getUnflaturi(),L[rand-1]);
-                        stiva.top()->setValabilitate(false);
-                        ///L[rand-1]->resetUnflaturi();
+                    cout<<"Nu sunt suficiente carti, asa ca numarul de carti extrase a fost redus la "<<ListaCarti.size()<<endl;
+                    AdaugaCarti(ListaCarti.size(),L[rand-1]);
+                    stiva.top()->setValabilitate(false);
+                    ///L[rand-1]->resetUnflaturi();
                     }
-                    else{
-                        cout<<"Nu sunt suficiente carti, asa ca numarul de carti extrase a fost redus la "<<ListaCarti.size()<<endl;
-                        AdaugaCarti(ListaCarti.size(),L[rand-1]);
-                        stiva.top()->setValabilitate(false);
-                        ///L[rand-1]->resetUnflaturi();
-
-                    }
-                }
             }
             else{
                 stiva.push(f[actiune-1]);
@@ -132,8 +97,80 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
             rand=NextPlayer(rand,(int)L.size());
             StartJocLocal(L,rand);
         }
-        else if(esteStaiOTura(stiva.top())){
+        else if(esteActiune(stiva.top(),1)){ ///as
                 CarteActiune x(stiva.top()->getCuloare(),stiva.top()->getSemn(),1);
+                shared_ptr<CarteActiune>y=make_shared<CarteActiune>(x);
+                stiva.top()=dynamic_pointer_cast<CarteActiune>(y);
+                cout<<endl<<ROSU<<"CULOAREA A FOST SCHIMBATA IN ";
+                if(stiva.top()->getCuloareNoua()==1)
+                    cout<<"INIMA ROSIE"<<ALB<<endl;
+                else if(stiva.top()->getCuloareNoua()==2)
+                    cout<<"INIMA NEAGRA"<<ALB<<endl;
+                else if(stiva.top()->getCuloareNoua()==3)
+                    cout<<"CARO"<<ALB<<endl;
+                else
+                    cout<<"TREFLA"<<ALB<<endl;
+                cout<<endl;
+                cout<<"----------CARTILE TALE SUNT------------"<<endl<<endl;
+                for(int i=0;i<L[rand-1]->getNrCarti();i++){
+                    shared_ptr<Carti>x=L[rand-1]->getCarti(i);
+                    desenAs(x,folositoare,nefolositoare,f,n,stiva.top());
+                }
+                this_thread::sleep_for(chrono::seconds(1));
+                if(f.size()){
+                for(int i=0;i<6;i++)
+                {
+                    for(int j=i;j<folositoare.size();j+=6)
+                        cout<<VERDE<<folositoare[j]<<ALB<<"\t";
+                    cout<<endl;
+                }
+                cout<<endl;
+            }
+            if(n.size()){
+                for(int i=0;i<6;i++)
+                {
+                    for(int j=i;j<nefolositoare.size();j+=6)
+                        cout<<nefolositoare[j]<<"\t";
+                    cout<<endl;
+                }
+            }
+            cout<<endl<<"-------ACTIUNI POSIBILE-----------"<<endl;
+            int i=0;
+            for(;i<folositoare.size()/6;i++)
+                cout<<i+1<<": Joaca cartea de pe pozitia "<<i+1<<endl;
+            cout<<ROSU<<i+1<<": Trage o carte"<<ALB<<endl;
+            int actiune=0;
+            while(actiune<1 || actiune>i+1)
+            {
+                cout<<"ALEGE ACTIUNE: ";
+                cin>>actiune;
+            }
+            if(actiune==i+1){
+                if(ListaCarti.size()>=1){
+                    AdaugaCarti(1,L[rand-1]);
+                }
+                else{
+                    cout<<"Nu mai sunt carti disponibile!!!"<<endl;
+                }
+                cout<<endl;
+                cout<<"-------CARTEA EXTRASA ESTE-------------"<<endl<<endl;
+                desen(L[rand-1]->getCarti(L[rand-1]->getNrCarti()-1),s);
+                for(int j=0;j<6;j++)
+                    cout<<s[j]<<endl;
+                cout<<endl;
+            }
+            else{
+                stiva.push(f[actiune-1]);
+                L[rand-1]->stergeCarte(f[actiune-1]);
+            }
+            cout<<"-----URMATORUL JUCATOR IN 2 SECUNDE---------"<<endl;
+            this_thread::sleep_for(chrono::seconds(2));
+            system("CLS");
+            rand=NextPlayer(rand,(int)L.size());
+            StartJocLocal(L,rand);
+        }
+        else if(esteActiune(stiva.top(),4)){ ///stai o tura
+                CarteActiune x(stiva.top()->getCuloare(),stiva.top()->getSemn(),2);
                 shared_ptr<CarteActiune>y=make_shared<CarteActiune>(x);
                 stiva.top()=dynamic_pointer_cast<CarteActiune>(y);
                 cout<<"----------CARTILE TALE SUNT------------"<<endl<<endl;
@@ -227,7 +264,6 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
                 if(ListaCarti.size()>=1){
                 ///de implementat, verifica daca sunt sufieciente carti ramase
                     AdaugaCarti(1,L[rand-1]);
-                    verificaCartiRamase();
                 }
                 else{
                     cout<<"Nu mai sunt carti disponibile!!!"<<endl;
@@ -242,6 +278,23 @@ void StartJocLocal(vector<shared_ptr<HumanPlayer>>L,int rand){
             else{
                 stiva.push(f[actiune-1]);
                 L[rand-1]->stergeCarte(f[actiune-1]);
+                if(esteActiune(stiva.top(),1)){
+                    cout<<"ALEGE IN CE CULOARE SCHIMBI: "<<endl;
+                    cout<<"1. INIMA ROSIE"<<endl;
+                    cout<<"2. INIMA NEAGRA"<<endl;
+                    cout<<"3. CARO"<<endl;
+                    cout<<"4. TREFLA"<<endl;
+                    int sc=0;
+                    while(sc<1 || sc>4)
+                    {
+                        cout<<"INTRODU CULOAREA: ";
+                        cin>>sc;
+                    }
+                    CarteActiune x(stiva.top()->getCuloare(),stiva.top()->getSemn(),1);
+                    shared_ptr<CarteActiune>y=make_shared<CarteActiune>(x);
+                    stiva.top()=dynamic_pointer_cast<CarteActiune>(y);
+                    stiva.top()->setCuloareNoua(sc);
+                }
             }
             cout<<"-----URMATORUL JUCATOR IN 2 SECUNDE---------"<<endl;
             this_thread::sleep_for(chrono::seconds(2));
