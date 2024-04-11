@@ -29,11 +29,11 @@ class Carti{
 };
 class CarteValoare:public Carti{
     int valoare;
-    bool valabila;
+    bool valabilitate;
     public:
         CarteValoare(int c,int s):Carti(c,s){
             valoare=0;
-            valabila=true;
+            valabilitate=true;
         }
         int getValoare() override{
             return valoare;
@@ -42,18 +42,18 @@ class CarteValoare:public Carti{
             valoare=x;
         }
         bool getValabilitate() override{
-            return valabila;
+            return valabilitate;
         }
         void setValabilitate(bool x) override{
-            valabila=x;
+            valabilitate=x;
         }
 //        void afis(){
-//            cout<<"clasa derivata";
+//            cout<<"clasa valoare";
 //        }
 };
 class CarteActiune:public Carti{
     int actiune;
-    bool valabila;
+    bool valabilitate;
     /*
         1. Schimba Culoarea
         2. Stai o tura
@@ -61,11 +61,23 @@ class CarteActiune:public Carti{
     public:
         CarteActiune(int c,int s,int a):Carti(c,s){
             actiune=a;
+            valabilitate=true;
         }
+//        void afis(){
+//            cout<<"clasa actiune";
+//        }
+        bool getValabilitate() override{
+            return valabilitate;
+        }
+        void setValabilitate(bool x) override{
+            valabilitate=x;
+        }
+
 };
 class Jucator{
     protected:
         int staOTura;
+        static int calculStaOTura;
         static int nrUnflaturi;
         string nickname;
         int rundeCastigate;
@@ -97,6 +109,15 @@ class Jucator{
         void decStaOTura(){
             staOTura--;
         }
+        void addStaOTura(int x=1){
+            staOTura+=x;
+        }
+        void incCalculStaOTura(int x=1){
+            calculStaOTura+=x;
+        }
+        int getCalculStaOTura(){
+            return calculStaOTura;
+        }
         void stergeCarte(shared_ptr<Carti> x){
             for(int i=0;i<CartiJucator.size();i++)
                 if(x==CartiJucator[i])
@@ -116,6 +137,7 @@ class Jucator{
         }
 };
 int Jucator::nrUnflaturi=0;
+int Jucator::calculStaOTura=0;
 class HumanPlayer:public Jucator{
     int numarJocuriCastigate;
     public:
@@ -240,6 +262,47 @@ void desenUnflaturi(shared_ptr<Carti>x,vector<string>&f,vector<string>&n,vector<
         n.push_back("..........");
     }
 }
+void desenTura(shared_ptr<Carti>x,vector<string>&f,vector<string>&n,vector<shared_ptr<Carti>>&fo,vector<shared_ptr<Carti>>&ne,shared_ptr<Carti>deVerificat){
+    string c,s;
+    if(x->getCuloare()==1)
+        c="INIMA RO";
+    else if(x->getCuloare()==2)
+        c="INIMA NE";
+    else if(x->getCuloare()==3)
+        c="..CARO..";
+    else
+        c=".TREFLA.";
+    if(x->getSemn()==1)
+        s="AS";
+    else if(x->getSemn()>=2 && x->getSemn()<=9)
+        s=to_string(x->getSemn())+".";
+    else if(x->getSemn()==10)
+        s="10";
+    else if(x->getSemn()==11)
+        s="J.";
+    else if(x->getSemn()==12)
+        s="Q.";
+    else
+        s="K.";
+    if(x->getSemn()==deVerificat->getSemn()){
+        fo.push_back(x);
+        f.push_back("..........");
+        f.push_back("..........");
+        f.push_back("...."+s+"....");
+        f.push_back("."+c+".");
+        f.push_back("..........");
+        f.push_back("..........");
+    }
+    else{
+        ne.push_back(x);
+        n.push_back("..........");
+        n.push_back("..........");
+        n.push_back("...."+s+"....");
+        n.push_back("."+c+".");
+        n.push_back("..........");
+        n.push_back("..........");
+    }
+}
 void desen(shared_ptr<Carti>x,vector<string>&v){
     string c,s;
     if(x->getCuloare()==1)
@@ -286,5 +349,5 @@ bool esteUnflatura(shared_ptr<Carti>x,shared_ptr<HumanPlayer>L){
     return false;
 }
 bool esteStaiOTura(shared_ptr<Carti>x){
-    return x->getSemn()==4;
+    return x->getSemn()==4 && x->getValabilitate()==true;
 }
