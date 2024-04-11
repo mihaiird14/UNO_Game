@@ -672,7 +672,7 @@ void startPVP(shared_ptr<HumanPlayer>Player,shared_ptr<Jucator>PC,int rand){
                         AdaugaCarti(PC->getUnflaturi(),PC);
                         stiva.top()->setValabilitate(false);
                         ///L[rand-1]->resetUnflaturi();
-                        cout<<"Computerul a tras o carte nou!"<<endl;
+                        cout<<"Computerul a tras "<<PC->getUnflaturi()<<" carti!"<<endl;
                     }
                     else{
                         cout<<"Nu sunt suficiente carti, asa ca numarul de carti extrase a fost redus la "<<ListaCarti.size()<<endl;
